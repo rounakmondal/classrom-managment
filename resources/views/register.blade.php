@@ -73,20 +73,42 @@
         <div class="card" style="width: 25rem;">
            
             <div class="card-body">
-                <h6>Welcome to online education managment system</h6>
-                <form action="logincheck" method="post" enctype="multipart/form-data">
+                <h6>Register to youself online education managment system</h6>
+                <form class="mb-5" action="regsubmit" method="POST">
                     @csrf
                     <div class="form-group">
+                        <label for="exampleInputEmail1">Name</label>
+                        <input type="name" class="form-control"  name="name" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="your name">
+                  
+                      </div>
+                    <div class="form-group">
                       <label for="exampleInputEmail1">Email address</label>
-                      <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                      <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                
                     </div>
                     <div class="form-group">
+                        <label for="exampleInputEmail1" class="form-label">Role</label>
+                        <select name="roll" id="roll" class="form-control form-control-sm" required>
+                          <option value="">select your role</option>
+                          <option value="teacher" name="roll">Teacher </option>
+                          <option value="student" name="roll">Students</option>
+                        </select>      
+                    </div>
+                    <div class="form-group">
+<label for="phone number" class="form-label">phone_number</label>
+<input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="Phone  number">
+
+
+
+                    </div>
+
+                    <div class="form-group">
                       <label for="exampleInputPassword1">Password</label>
-                      <input type="password" class="form-control"  autocomplete="off" placeholder="Enter"name="password">
+                      <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
                     </div>
                  
-                    <a href="{{route('register')}}" class="btn btn-primary" > register yourself</a>
-                    <button type="submit" class="btn btn-primary">login</button>
+                    <a href="/" ><button type="submit" class="btn btn-primary"> login</button></a>
+                   <button type="submit" class="btn btn-primary"> register yourself</button>
                   </form>
             </div>
           </div>
