@@ -25,11 +25,11 @@
             @php
             $sir=DB::table('registers')->where('email',session('email'))->first();
             @endphp
-         <h1 class="text-center"> looged in : {{$sir->name}}</h1>
+         <h1 class="text-center"> looged in :</h1>
         
         </div>
       </nav>
-    <h1>{{$data['class_name']}}</h1>
+ 
 
     <div class="container">
        
@@ -49,7 +49,7 @@
 
         <table class="table">
             @php
-        $data=DB::table('create_classes')->where('email',session('email'))->get();
+        $data=DB::table('studentclasses')->get();
         $count=1;
 @endphp
             <thead>
@@ -65,12 +65,13 @@
                 @foreach($data as $key )
               <tr>
           
-                <td>{{$key->class_name}}</td>
+                <td>{{$key->name}}</td>
           
-                <td>{{$key->created_at}}</td>
+                <td>{{$key->class}}</td>
+                <td>{{$key->email}}</td>
                 <td><a href="deatils/{{$key->id}}"> <button type="button"  class="btn btn-success">deatils</button></a></td>
                 <td><button type="button" class="btn btn-danger">delete</button></td>
-                
+              
               </tr>
 
 
@@ -99,7 +100,7 @@
 
         <table class="table">
             @php
-        $data=DB::table('registers')->where('role','student')->get();
+        $dat=DB::table('registers')->where('role','student')->get();
        
 @endphp
             <thead>
@@ -112,7 +113,7 @@
               </tr>
             </thead>
             <tbody>
-                @foreach($data as $key )
+                @foreach($dat as $key )
               <tr>
           
                 <td>{{$key->name}}</td>
@@ -120,13 +121,18 @@
                 <td>{{$key->email}}</td>
                 <td>{{$key->ph_number}}</td>
                 <form method="post" action="/adclass" enctype="multipart/form-data">
+
                   @csrf
                   
                   <input type="hidden" name="id" value="{{$key->id}}">
-                <td> <button type="submit"  class="btn btn-success">add</button></td>
+                  <input type="hidden" name="class" value="{{$class['class_name']}}">
+
+                  
+               
+                <td> <button type="submit"  class="btn btn-success">Add</button></td>
               </form>
 
-                <td><button type="button" class="btn btn-danger">delete</button></td>
+                <td><button type="button" class="btn btn-danger">Delete</button></td>
                 
               </tr>
 
@@ -154,14 +160,73 @@
 
       <div class="card">
         <div class="card-body">
-    
-          <form action="/addfile" method="post" enctype="multipart/formdata">
-            @csrf
-            <input type="file" name="file" >
-            <button type="submit" class="btn btn-primary">Addfile</button>
+
+          <form action ='/addfile' method='post' enctype="multipart/form-data">
+          @csrf
+          <input type="file" name="file" id="file"/>
+          <input type="hidden" name="class" value="{{$class['class_name']}}">
+          <button type="submit" name="submit">submit </button>
           </form> 
    
 </div>
+
+@php
+$class_data=DB::table('education')->where('class',$class['class_name'])->get();
+$class_exist=DB::table('education')->where('class',$class['class_name'])->exists();
+if($class_exist){
+ 
+}
+
+
+@endphp
+@if($class_exist)
+@foreach($class_data as $pdf)
+<div class="card">
+  <div class="card-body">
+  <h1 class="text-center text-success">{{$pdf->class}}</h1>
+  <h1 class="text-center text-success">{{$pdf->education_data}}</h1>
+ <form action="{{route('download')}}" enctype="multipart/form-data" method="post">
+  @csrf
+  <input type="hidden" name="edudata" value="{{$pdf->education_data}}">
+<button type="submit" class="btn bnt-sucess">Download</button>
+ </form>
+</div>
+
+  </div>
+
+
+
+@endforeach
+
+@else
+<div class="card">
+  <div class="card-body">
+  <h1 class="text-center text-success">no pdf avaliable yet</h1>
+
+</div>
+
+  </div>
+
+@endif
+@if($class_exist)
+      <div class="card">
+     
+
+        </div>
+        @else
+
+ <div class="card">
+        <div class="card-body">
+    
+      <button type="submit" class="btn bnt-sucess" disabled>Download</button>
+      </form>
+      </div>
+
+        
+        
+        
+        @endif
+
 
         </div>
 
@@ -169,12 +234,64 @@
       </div>
     <div class="card">
         <div class="card-body">
-        <h1 class="text-center text-success">all education</h1>
-      
+          <form action ='/vupload' method='post' enctype="multipart/form-data">
+            @csrf
+            <input type="file" name="file" id="file"/>
+            <input type="hidden" name="class" value="{{$class['class_name']}}">
+            <button type="submit" name="submit">submit </button>
+            </form> 
+     
    
   </div>
 
         </div>
+        @php
+        $video_data_file=DB::table('videodatas')->where('class',$class['class_name'])->get();
+        $class_video_exist=DB::table('videodatas')->where('class',$class['class_name'])->exists();
+        if($class_exist){
+       
+        } 
+        @endphp
+        @if($class_video_exist)
+        
+        
+ @foreach($video_data_file as $video)
+ <div class="card">
+   <div class="card-body">
+    <video width="400" controls>
+      <source src="{{asset('education_video/'.$video->video_data)}}" type="video/mp4">
+
+    
+    </video>
+   <h1 class="text-center text-success">{{$video->class}}</h1>
+   <h1 class="text-center text-success">{{$video->video_data}}</h1>
+  <form action="{{route('downloadv')}}" enctype="multipart/form-data" method="post">
+   @csrf
+   <input type="hidden" name="edudata" value="{{$video->video_data}}">
+ <button type="submit" class="btn bnt-sucess">Download</button>
+  </form>
+ </div>
+ 
+   </div> 
+ @endforeach
+@else
+<div class="card">
+  <div class="card-body">
+    <h1>no data avaliable baby.....</h1>
+  </div>
+</div>
+
+@endif
+{{-- <div class="card">
+  <div class="card-body">
+
+    <video width="400" controls>
+      <source src="{{asset('mov_bbb.mp4')}}" type="video/mp4">
+
+      Your browser does not support HTML video.
+    </video>
+  </div>
+</div> --}}
 
 
       </div>
@@ -184,6 +301,7 @@
 
     </div>
 </div>
+
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>

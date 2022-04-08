@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\create_class;
 use App\Models\studentclass;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class users extends Controller
@@ -47,8 +48,7 @@ class users extends Controller
     {
         if (session()->has('email')) {
             return redirect('/dashboard');
-        } else {
-           
+        } else {           
             $email = $req->email;
             $password = $req->password;
             
@@ -57,8 +57,19 @@ class users extends Controller
        
             if ($password==$userPass) {
                 $session = session()->put('email', $email);
-                
-                return redirect('dashboard');
+                if($user->role=='student'){
+
+                    return redirect('sdashboard');
+
+                }
+
+                else
+                {
+
+                    return redirect('dashboard');
+
+                }
+
             } 
             
             else {
@@ -68,6 +79,10 @@ class users extends Controller
     }
     public function dashboard(){
         return view('dashboard');
+    }
+
+    public function sdashboard(){
+        return view('sdashboard');
     }
     public function managestudent(){
     return view('managstudent');
@@ -86,28 +101,97 @@ class users extends Controller
 
 
     public function deatils($id){
-        $data=create_class::find($id);
-        return view('deatils',compact('data','id'));
+        $class=create_class::find($id);
+        return view('deatils',compact('class','id'));
 
 
     }
     public function addclass(Request $request){
         $idd=$request->id;
         $mydata=new studentclass;
-        $data=DB::table('registers')->where('id', $idd)->get();
-      
-        // $class_name_data=DB::table('create_classes')->where('email', session('email'))->get();
-dd($data->name);
-        // $mydata->name=$data->name;
-        // $mydata->email=$data->email;
-        // $mydataa=  $mydata->save();
-        // if ($mydataa) {
-        //     return redirect()->back();
-        // }
+        $data=DB::table('registers')->where('id', $idd)->first();
+        $email=DB::table('studentclasses')->where('class',$request->class )->where('email',$data->email)->exists();
+    if ($email) {
+
+        return redirect()->back();
+
+
+    }else{
+        $mydata->name=$data->name;
+        $mydata->class=$request->class;
+        $mydata->email=$data->email;
+        
+        $mydataa=  $mydata->save();
+        if ($mydataa) {
+            return redirect()->back();
+        }
     }
+}
+
+
+
     
     public function addfile(Request $req){
-        dd('file');
+      
+        $userEmail=session('email');
+    //    dd($req);
+
+            $file=$req->file('file');
+        
+            $extention=$file->getClientOriginalExtension();
+        
+            $filename=time().'.'.$extention;
+            $file->move('education',$filename);
+            $date=date('d').' '.date('F').' '.date('Y');
+            $class=$req->class;
+            $UploadResume=DB::table('education')->insert(array('education_data'=>$filename,'date'=>$date,
+            'class'=>$class, 'user_email'=>$userEmail));
+            return redirect('/dashboard');
     }
+
+
+
+    public function download(Request $req)
+    {
+        $pdf_name =$req->edudata;
+        $file= public_path(). "/education/".$pdf_name;
+                                                                                                                                                                                                                                                                                                                                                            
+        $headers = array(
+                  'Content-Type: application/pdf',
+                );
+    
+        return response()->download($file, $pdf_name, $headers);
+    }
+    public function downloadv(Request $req)
+    {
+        $pdf_name =$req->edudata;
+        $file= public_path(). "/education_video/".$pdf_name;
+                                                                                                                                                                                                                                                                                                                                                            
+        $headers = array(
+                  'Content-Type: application/video',
+                );
+    
+        return response()->download($file, $pdf_name, $headers);
+    }
+
+
+    public function vupload(Request $req){
+          
+            $userEmail=session('email');
+            $file=$req->file('file');
+            $extention=$file->getClientOriginalExtension();
+            $filename=time().'.'.$extention;
+            $date=date('d').' '.date('F').' '.date('Y');
+            $class=$req->class;
+            $file->move('education_video',$filename);
+            
+            $UploadResume=DB::table('videodatas')->insert(array('video_data'=>$filename,'date'=>$date,
+            'class'=>$class, 'user_email'=>$userEmail));
+            return redirect('/dashboard');
+           
+        
+    }
+    
+
     } 
 
